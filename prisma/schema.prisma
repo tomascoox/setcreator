@@ -1,0 +1,80 @@
+datasource db {
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Song {
+  id       String  @id @default(uuid())
+  userId   String
+  title    String
+  artist   String?
+  notes    String?
+  duration Int?
+  lyrics   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  SetlistSong SetlistSong[]
+}
+
+model Setlist {
+  id       String    @id @default(uuid())
+  userId   String
+  title    String
+  date     DateTime?
+  location String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  SetlistSong SetlistSong[]
+  GigSetlist  GigSetlist[]
+}
+
+model SetlistSong {
+  id        String  @id @default(uuid())
+  songId    String
+  setlistId String
+  order     Int
+  Song      Song    @relation(fields: [songId], references: [id])
+  Setlist   Setlist @relation(fields: [setlistId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([songId])
+  @@index([setlistId])
+}
+
+model Gig {
+  id         String       @id @default(uuid())
+  userId     String
+  title      String
+  date       DateTime
+  location   String
+  GigSetlist GigSetlist[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model GigSetlist {
+  id        String  @id @default(uuid())
+  gigId     String
+  setlistId String
+  order     Int
+  Gig       Gig     @relation(fields: [gigId], references: [id])
+  Setlist   Setlist @relation(fields: [setlistId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([gigId])
+  @@index([setlistId])
+}
