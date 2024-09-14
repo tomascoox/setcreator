@@ -2,7 +2,6 @@
 
 import React from 'react'
 import { useRouter } from 'next/navigation'
-
 import {
     ColumnDef,
     ColumnFiltersState,
@@ -62,7 +61,7 @@ export function DataTable<TData, TValue>({
             <div className="flex items-center justify-between py-4">
                 <div>
                     <Input
-                        placeholder="Filter songs by title..."
+                        placeholder="Filter gigs by title..."
                         value={
                             (table
                                 .getColumn('title')
@@ -76,13 +75,13 @@ export function DataTable<TData, TValue>({
                         className="max-w-sm"
                     />
                 </div>
-                <Link href="/songs/create">
+                <Link href="/gigs/create">
                     <Button
                         className="flex items-center space-x-2"
                         size="sm"
                     >
                         <PlusCircle className="w-4 h-4 mr-2" />
-                        New song
+                        New gig
                     </Button>
                 </Link>
             </div>
@@ -120,7 +119,7 @@ export function DataTable<TData, TValue>({
                                     }
                                     onClick={() =>
                                         router.push(
-                                            `/songs/${
+                                            `/gigs/${
                                                 (
                                                     row.original as {
                                                         id: string

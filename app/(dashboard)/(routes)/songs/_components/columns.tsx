@@ -122,14 +122,16 @@ export const columns: ColumnDef<Song>[] = [
             const { id } = row.original
             return (
                 <DropdownMenu>
-                    <DropdownMenuTrigger>
-                        <Button
-                            variant="ghost"
-                            className="h-4 w-8 p-0"
-                        >
-                            <span className="sr-only">Open menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
-                        </Button>
+                    <DropdownMenuTrigger asChild>
+                        <div>
+                            <Button
+                                variant="ghost"
+                                className="h-4 w-8 p-0"
+                            >
+                                <span className="sr-only">Open menu</span>
+                                <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                        </div>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
                         <Link href={`/songs/${id}`}>
