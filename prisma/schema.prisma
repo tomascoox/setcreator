@@ -1,80 +1,177 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
 datasource db {
   provider     = "mysql"
   url          = env("DATABASE_URL")
   relationMode = "prisma"
 }
 
-generator client {
-  provider = "prisma-client-js"
+model User {
+  id            String    @id
+  name           String?
+  email          String?         @unique
+  emailVerified  DateTime?
+  image          String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  accounts       Account[]
+  sessions       Session[]
+  songs          Song[]
+  gigs           Gig[]
+  setlists       Setlist[]
+  collaborations Collaboration[]
+  bandMembers   BandMember[]
+}
+
+model Collaboration {
+  id        String   @id @default(cuid())
+  userId    String
+  songId    String?
+  gigId     String?
+  setlistId String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
+  song      Song?    @relation(fields: [songId], references: [id])
+  gig       Gig?     @relation(fields: [gigId], references: [id])
+  setlist   Setlist? @relation(fields: [setlistId], references: [id])
+
+  @@unique([userId, songId])
+  @@unique([userId, gigId])
+  @@unique([userId, setlistId])
+  @@index([userId])
+  @@index([songId])
+  @@index([gigId])
+  @@index([setlistId])
 }
 
 model Song {
-  id       String  @id @default(uuid())
-  userId   String
-  title    String
-  artist   String?
-  notes    String?
-  duration Int?
-  lyrics   String?
+  id              String          @id @default(cuid())
+  title           String
+  artist          String
+  key             String?
+  bpm             Int?
+  timeSignature   String?
+  userId          String
+  isCollaborative Boolean         @default(false)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  duration        Int?
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  collaborators   Collaboration[]
+  setlistSongs    SetlistSong[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  @@index([userId])
+}
 
-  SetlistSong SetlistSong[]
+model Gig {
+  id              String          @id @default(cuid())
+  title           String
+  date            DateTime
+  venue           String
+  userId          String
+  isCollaborative Boolean         @default(false)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  collaborators   Collaboration[]
+  gigSetlists     GigSetlist[]
+
+  @@index([userId])
 }
 
 model Setlist {
-  id       String    @id @default(uuid())
-  userId   String
-  title    String
-  date     DateTime?
-  location String?
+  id              String          @id @default(cuid())
+  title           String
+  userId          String
+  isCollaborative Boolean         @default(false)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  collaborators   Collaboration[]
+  setlistSongs    SetlistSong[]
+  gigSetlists     GigSetlist[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  SetlistSong SetlistSong[]
-  GigSetlist  GigSetlist[]
+  @@index([userId])
 }
 
 model SetlistSong {
-  id        String  @id @default(uuid())
+  id        String   @id @default(uuid())
   songId    String
   setlistId String
   order     Int
-  Song      Song    @relation(fields: [songId], references: [id])
-  Setlist   Setlist @relation(fields: [setlistId], references: [id])
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  Song      Song     @relation(fields: [songId], references: [id])
+  Setlist   Setlist  @relation(fields: [setlistId], references: [id])
 
   @@index([songId])
   @@index([setlistId])
 }
 
-model Gig {
-  id         String       @id @default(uuid())
-  userId     String
-  title      String
-  date       DateTime
-  location   String
-  GigSetlist GigSetlist[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
 model GigSetlist {
-  id        String  @id @default(uuid())
+  id        String   @id @default(uuid())
   gigId     String
   setlistId String
   order     Int
-  Gig       Gig     @relation(fields: [gigId], references: [id])
-  Setlist   Setlist @relation(fields: [setlistId], references: [id])
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  Gig       Gig      @relation(fields: [gigId], references: [id])
+  Setlist   Setlist  @relation(fields: [setlistId], references: [id])
 
   @@index([gigId])
   @@index([setlistId])
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Band {
+  id        String       @id @default(cuid())
+  name      String
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  members   BandMember[]
+}
+
+model BandMember {
+  id       String   @id @default(cuid())
+  userId   String
+  bandId   String
+  role     String   @default("member") // Could be "admin", "member", etc.
+  joinedAt DateTime @default(now())
+  user     User     @relation(fields: [userId], references: [id])
+  band     Band     @relation(fields: [bandId], references: [id])
+
+  @@unique([userId, bandId])
+  @@index([userId])
+  @@index([bandId])
 }

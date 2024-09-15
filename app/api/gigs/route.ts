@@ -1,28 +1,55 @@
-import { auth } from '@clerk/nextjs'
 import { NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+import { auth } from '@clerk/nextjs'
 
-import { db } from '@/lib/db'
+export async function GET() {
+    try {
+        const { userId } = auth()
+
+        if (!userId) {
+            return new NextResponse("Unauthorized", { status: 401 })
+        }
+
+        const gigs = await prisma.gig.findMany({
+            where: {
+                userId: userId
+            }
+        })
+
+        return NextResponse.json(gigs)
+    } catch (error) {
+        console.log('[GIGS_GET]', error)
+        return new NextResponse("Internal Error", { status: 500 })
+    }
+}
 
 export async function POST(req: Request) {
     try {
         const { userId } = auth()
-        const { title, date, location } = await req.json()
+        const { title, date, venue } = await req.json()
 
         if (!userId) {
-            return new NextResponse('Unauthorized', { status: 401 })
+            return new NextResponse("Unauthorized", { status: 401 })
         }
 
-        const gig = await db.gig.create({
+        if (!title || !date || !venue) {
+            return new NextResponse("Missing required fields", { status: 400 })
+        }
+
+        const gig = await prisma.gig.create({
             data: {
-                userId,
                 title,
                 date: new Date(date),
-                location,
-            },
+                venue,
+                userId
+            }
         })
+
         return NextResponse.json(gig)
     } catch (error) {
-        console.log('[GIGS]', error)
-        return new NextResponse('Internal Error', { status: 500 })
+        console.log('[GIGS_POST]', error)
+        return new NextResponse("Internal Error", { status: 500 })
     }
 }
+
+// Keep the existing POST method

@@ -1,18 +1,15 @@
-import { db } from '@/lib/db'
+import { prisma } from "@/lib/prisma"
 import { auth } from '@clerk/nextjs'
 import { redirect } from 'next/navigation'
-import { TitleForm } from './_components/title-form'
-import { DateForm } from './_components/date-form'
-import { LocationForm } from './_components/location-form'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
+import { BandForm } from './_components/band-form'
+import { MembersForm } from './_components/members-form'
 
-const GigIdPage = async ({
+const BandIdPage = async ({
     params,
 }: {
-    params: {
-        gigId: string
-    }
+    params: { bandId: string }
 }) => {
     const { userId } = auth()
 
@@ -20,20 +17,28 @@ const GigIdPage = async ({
         return redirect('/')
     }
 
-    const gig = await db.gig.findUnique({
+    const band = await prisma.band.findUnique({
         where: {
-            id: params.gigId,
+            id: params.bandId,
+        },
+        include: {
+            members: true,
         },
     })
 
-    if (!gig) {
-        return redirect('/')
+    if (!band) {
+        return redirect('/bands')
+    }
+
+    const isMember = band.members.some(member => member.userId === userId)
+
+    if (!isMember) {
+        return redirect('/bands')
     }
 
     const requiredFields = [
-        gig.title,
-        gig.date,
-        gig.venue, // Change this line from gig.location to gig.venue
+        band.name,
+        band.members.length > 0
     ]
 
     const totalFields = requiredFields.length
@@ -44,41 +49,38 @@ const GigIdPage = async ({
     return (
         <div className="p-6">
             <Link
-                href={`/gigs/`}
+                href="/bands"
                 className="flex items-center text-sm hover:opacity-75 transition mb-6"
             >
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to gigs
+                Back to bands
             </Link>
 
             <div className="flex items-center justify-between">
                 <div className="flex flex-col gap-y-2">
                     <h1 className="text-2xl font-medium">
-                        Gig setup
+                        Band setup
                     </h1>
                     <span className="text-sm text-slate-700">
                         Complete all fields {completionText}
                     </span>
                 </div>
             </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-16">
                 <div>
                     <div className="flex items-center gap-x-2">
                         <h2 className="text-xl">
-                            Customize your gig
+                            Customize your band
                         </h2>
                     </div>
-                    <TitleForm
-                        initialData={gig}
-                        gigId={gig.id}
+                    <BandForm
+                        initialData={band}
+                        bandId={band.id}
                     />
-                    <DateForm
-                        initialData={{ ...gig, date: gig.date.toISOString() }}
-                        gigId={gig.id}
-                    />
-                    <LocationForm
-                        initialData={{ ...gig, location: gig.venue }} // Map venue to location
-                        gigId={gig.id}
+                    <MembersForm
+                        initialData={band}
+                        bandId={band.id}
                     />
                 </div>
             </div>
@@ -86,4 +88,4 @@ const GigIdPage = async ({
     )
 }
 
-export default GigIdPage
+export default BandIdPage

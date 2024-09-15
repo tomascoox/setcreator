@@ -1,151 +1,101 @@
 'use client'
 
-import * as z from 'zod'
-import axios from 'axios'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import toast from 'react-hot-toast'
-import DatePicker from 'react-datepicker'
-import 'react-datepicker/dist/react-datepicker.css'
 import { useState } from 'react'
-import { format } from 'date-fns'
+import { useRouter } from 'next/navigation'
+import axios from 'axios'
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { ArrowLeft } from 'lucide-react'
+import Link from 'next/link'
+import DatePicker from "react-datepicker"
+import "react-datepicker/dist/react-datepicker.css"
 
-import {
-    Form,
-    FormControl,
-    FormDescription,
-    FormField,
-    FormLabel,
-    FormMessage,
-    FormItem,
-} from '@/components/ui/form'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-
-const formSchema = z.object({
-    title: z.string().min(1, { message: 'Title is required' }),
-    date: z.date().refine((date) => !isNaN(date.getTime()), { message: 'Date is required' }),
-    location: z.string().min(1, { message: 'Location is required' }),
-})
-
-const CreateGigPage = () => {
+export default function CreateGig() {
+    const [title, setTitle] = useState('')
+    const [date, setDate] = useState<Date | null>(null)
+    const [venue, setVenue] = useState('')
+    const [isLoading, setIsLoading] = useState(false)
     const router = useRouter()
-    const [selectedDate, setSelectedDate] = useState<Date | null>(null)
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
-        defaultValues: {
-            title: '',
-            date: undefined, // Change from null to undefined
-            location: '',
-        },
-    })
 
-    const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault()
+        if (!date) {
+            // Handle error silently or use a proper error logging service
+            return
+        }
+        setIsLoading(true)
         try {
-            const response = await axios.post('/api/gigs', {
-                ...values,
-                date: selectedDate ? selectedDate.toISOString() : '',
+            await axios.post('/api/gigs', { 
+                title, 
+                date: date.toISOString(), 
+                venue 
             })
-            router.push(`/gigs/${response.data.id}`)
-            toast.success('Gig created')
-        } catch {
-            toast.error('Something went wrong')
+            router.push('/gigs')
+        } catch (error) {
+            // Handle error silently or use a proper error logging service
+        } finally {
+            setIsLoading(false)
         }
     }
 
-    const { isSubmitting, isValid } = form.formState
-
     return (
-        <div className="max-w-5xl mx-auto flex md:items-center md:justify-center h-full p-6">
-            <div>
-                <h1 className="text-2xl">Create a new gig</h1>
-                <p className="text-sm text-slate-600">
-                    Fill in the details to create a new gig.
-                </p>
-                <Form {...form}>
-                    <form
-                        onSubmit={form.handleSubmit(onSubmit)}
-                        className="space-y-8 mt-8"
-                    >
-                        <FormField
-                            control={form.control}
-                            name="title"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Title</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            disabled={isSubmitting}
-                                            placeholder='e.g. "Summer Festival"'
-                                            {...field}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="date"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Date</FormLabel>
-                                    <FormControl>
-                                        <DatePicker
-                                            selected={selectedDate}
-                                            onChange={(date) => {
-                                                setSelectedDate(date)
-                                                field.onChange(date)
-                                            }}
-                                            showTimeSelect
-                                            dateFormat="yyyy-MM-dd / HH:mm"
-                                            className="w-full border rounded-md p-2"
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="location"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Location</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            disabled={isSubmitting}
-                                            placeholder='e.g. "Central Park"'
-                                            {...field}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <div className="flex items-center gap-x-2">
-                            <Link href="/gigs">
-                                <Button
-                                    type="button"
-                                    variant="ghost"
-                                >
-                                    Cancel
-                                </Button>
-                            </Link>
-                            <Button
-                                type="submit"
-                                disabled={!isValid || isSubmitting}
-                            >
-                                Create
-                            </Button>
-                        </div>
-                    </form>
-                </Form>
-            </div>
+        <div className="p-6">
+            <Link
+                href="/gigs"
+                className="flex items-center text-sm hover:opacity-75 transition mb-6"
+            >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to gigs
+            </Link>
+
+            <h1 className="text-2xl font-bold mb-4">Create New Gig</h1>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                    <label htmlFor="title" className="block text-sm font-medium text-gray-700">
+                        Gig Title
+                    </label>
+                    <Input
+                        id="title"
+                        type="text"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        placeholder="Enter gig title"
+                        required
+                    />
+                </div>
+                <div>
+                    <label htmlFor="date" className="block text-sm font-medium text-gray-700">
+                        Date and Time
+                    </label>
+                    <DatePicker
+                        selected={date}
+                        onChange={(date: Date | null) => setDate(date)}
+                        showTimeSelect
+                        timeFormat="HH:mm"
+                        timeIntervals={15}
+                        dateFormat="MMMM d, yyyy h:mm aa"
+                        className="w-full p-2 border rounded"
+                        required
+                    />
+                </div>
+                <div>
+                    <label htmlFor="venue" className="block text-sm font-medium text-gray-700">
+                        Venue
+                    </label>
+                    <Input
+                        id="venue"
+                        type="text"
+                        value={venue}
+                        onChange={(e) => setVenue(e.target.value)}
+                        placeholder="Enter venue"
+                        required
+                    />
+                </div>
+                <Button type="submit" disabled={isLoading}>
+                    {isLoading ? 'Creating...' : 'Create Gig'}
+                </Button>
+            </form>
         </div>
     )
 }
-
-export default CreateGigPage

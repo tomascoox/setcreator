@@ -4,6 +4,7 @@ import { Gig } from '@prisma/client'
 import { ColumnDef } from '@tanstack/react-table'
 import { ArrowUpDown, MoreHorizontal, Pencil } from 'lucide-react'
 import { format } from 'date-fns'
+import { Checkbox } from "@/components/ui/checkbox"
 
 import { Button } from '@/components/ui/button'
 import {
@@ -14,7 +15,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import Link from 'next/link'
 
-export const columns: ColumnDef<Gig>[] = [
+export const columns: ColumnDef<Gig & { isCollaborative: boolean }>[] = [
     {
         accessorKey: 'title',
         header: ({ column }) => {
@@ -56,7 +57,7 @@ export const columns: ColumnDef<Gig>[] = [
         },
     },
     {
-        accessorKey: 'location',
+        accessorKey: 'venue', // Change this from 'location' to 'venue'
         header: ({ column }) => {
             return (
                 <Button
@@ -67,10 +68,23 @@ export const columns: ColumnDef<Gig>[] = [
                         )
                     }
                 >
-                    Location
+                    Venue
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             )
         },
+    },
+    {
+        accessorKey: 'isCollaborative',
+        header: "Collaborative",
+        cell: ({ row }) => (
+            <Checkbox
+                checked={row.original.isCollaborative}
+                onCheckedChange={(checked: boolean) => {
+                    // TODO: Implement API call to update collaboration status
+                    console.log("Update collaboration status for gig:", row.original.id, checked)
+                }}
+            />
+        ),
     }
 ]

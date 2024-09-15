@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { Montserrat } from 'next/font/google'
 
 import { cn } from '@/lib/utils'
-import { AudioLines, CalendarDays, Cog, LayoutDashboard, ScrollText } from 'lucide-react'
+import { AudioLines, CalendarDays, Cog, LayoutDashboard, ScrollText, Users } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 
 const montserrat = Montserrat({
@@ -37,6 +37,12 @@ const routes = [
         icon: CalendarDays,
         href: '/gigs',
         color: 'text-green-500',
+    },
+    {
+        label: 'Bands',
+        icon: Users,
+        href: '/bands',
+        color: 'text-violet-500',
     },
     {
         label: 'Settings',

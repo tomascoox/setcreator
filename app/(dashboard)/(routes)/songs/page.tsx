@@ -1,42 +1,27 @@
-import { Heading } from '@/components/heading'
-import { AudioLines } from 'lucide-react'
-import { DataTable } from './_components/data-table'
-import { columns } from './_components/columns'
-import { auth } from '@clerk/nextjs'
-import { redirect } from 'next/navigation'
-import { db } from '@/lib/db'
+'use client'
 
-const SongsPage = async () => {
-    const { userId } = auth()
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { SongsDataTable } from "./_components/data-table"
+import { Song } from "@prisma/client"
 
-    if (!userId) {
-        return redirect('/')
-    }
+export default function SongsPage() {
+	const [songs, setSongs] = useState<Song[]>([])
+	const router = useRouter()
 
-    const songs = await db.song.findMany({
-        where: {
-            userId,
-        },
-        orderBy: {
-            createdAt: 'desc',
-        },
-    })
+	const fetchSongs = async () => {
+		const response = await fetch('/api/songs')
+		const data = await response.json()
+		setSongs(data)
+	}
 
-    return (
-        <div>
-            <Heading
-                title="Songs"
-                description="Handle all your songs here."
-                icon={AudioLines}
-                iconColor="text-violet-500"
-                bgColor="text-violet-500/10"
-            />
-            <DataTable
-                columns={columns}
-                data={songs}
-            />
-        </div>
-    )
+	useEffect(() => {
+		fetchSongs()
+	}, [router])
+
+	return (
+		<div className="p-6">
+			<SongsDataTable data={songs} />
+		</div>
+	)
 }
-
-export default SongsPage

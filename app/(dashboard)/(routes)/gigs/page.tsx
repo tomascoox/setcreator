@@ -1,42 +1,27 @@
-import { Heading } from '@/components/heading'
-import { CalendarDays } from 'lucide-react'
-import { DataTable } from './_components/data-table'
-import { columns } from './_components/columns'
-import { auth } from '@clerk/nextjs'
-import { redirect } from 'next/navigation'
-import { db } from '@/lib/db'
+'use client'
 
-const GigsPage = async () => {
-    const { userId } = auth()
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { GigsDataTable } from "./_components/data-table"
+import { Gig } from "@prisma/client"
 
-    if (!userId) {
-        return redirect('/')
-    }
+export default function GigsPage() {
+	const [gigs, setGigs] = useState<Gig[]>([])
+	const router = useRouter()
 
-    const gigs = await db.gig.findMany({
-        where: {
-            userId,
-        },
-        orderBy: {
-            createdAt: 'desc',
-        },
-    })
+	const fetchGigs = async () => {
+		const response = await fetch('/api/gigs')
+		const data = await response.json()
+		setGigs(data)
+	}
 
-    return (
-        <div>
-            <Heading
-                title="Gigs"
-                description="Handle all your gigs here."
-                icon={CalendarDays}
-                iconColor="text-green-500"
-                bgColor="text-green-500/10"
-            />
-            <DataTable
-                columns={columns}
-                data={gigs}
-            />
-        </div>
-    )
+	useEffect(() => {
+		fetchGigs()
+	}, [router])
+
+	return (
+		<div className="p-6">
+			<GigsDataTable data={gigs} />
+		</div>
+	)
 }
-
-export default GigsPage

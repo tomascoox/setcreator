@@ -12,6 +12,7 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import Link from 'next/link'
+import { Checkbox } from "@/components/ui/checkbox"
 
 function formatDuration(seconds: number) {
     const minutes = Math.floor(seconds / 60)
@@ -21,7 +22,7 @@ function formatDuration(seconds: number) {
         .padStart(2, '0')}`
 }
 
-export const columns: ColumnDef<Song>[] = [
+export const columns: ColumnDef<Song & { isCollaborative: boolean }>[] = [
     {
         accessorKey: 'title',
         header: ({ column }) => {
@@ -144,5 +145,18 @@ export const columns: ColumnDef<Song>[] = [
                 </DropdownMenu>
             )
         },
+    },
+    {
+        accessorKey: "isCollaborative",
+        header: "Collaborative",
+        cell: ({ row }) => (
+            <Checkbox
+                checked={row.original.isCollaborative}
+                onCheckedChange={(checked: boolean) => {
+                    // TODO: Implement API call to update collaboration status
+                    console.log("Update collaboration status for song:", row.original.id, checked)
+                }}
+            />
+        ),
     },
 ]

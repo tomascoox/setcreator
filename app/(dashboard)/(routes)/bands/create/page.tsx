@@ -8,9 +8,8 @@ import { Input } from "@/components/ui/input"
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 
-export default function CreateSong() {
-    const [title, setTitle] = useState('')
-    const [artist, setArtist] = useState('')
+export default function CreateBand() {
+    const [name, setName] = useState('')
     const [isLoading, setIsLoading] = useState(false)
     const router = useRouter()
 
@@ -18,8 +17,8 @@ export default function CreateSong() {
         e.preventDefault()
         setIsLoading(true)
         try {
-            await axios.post('/api/songs', { title, artist })
-            router.push('/songs')
+            await axios.post('/api/bands', { name })
+            router.push('/bands')
         } catch (error) {
             // Handle error silently or use a proper error logging service
         } finally {
@@ -30,44 +29,31 @@ export default function CreateSong() {
     return (
         <div className="p-6">
             <Link
-                href="/songs"
+                href="/bands"
                 className="flex items-center text-sm hover:opacity-75 transition mb-6"
             >
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to songs
+                Back to bands
             </Link>
 
-            <h1 className="text-2xl font-bold mb-4">Create New Song</h1>
+            <h1 className="text-2xl font-bold mb-4">Create New Band</h1>
 
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                    <label htmlFor="title" className="block text-sm font-medium text-gray-700">
-                        Song Title
+                    <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                        Band Name
                     </label>
                     <Input
-                        id="title"
+                        id="name"
                         type="text"
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        placeholder="Enter song title"
-                        required
-                    />
-                </div>
-                <div>
-                    <label htmlFor="artist" className="block text-sm font-medium text-gray-700">
-                        Artist
-                    </label>
-                    <Input
-                        id="artist"
-                        type="text"
-                        value={artist}
-                        onChange={(e) => setArtist(e.target.value)}
-                        placeholder="Enter artist name"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        placeholder="Enter band name"
                         required
                     />
                 </div>
                 <Button type="submit" disabled={isLoading}>
-                    {isLoading ? 'Creating...' : 'Create Song'}
+                    {isLoading ? 'Creating...' : 'Create Band'}
                 </Button>
             </form>
         </div>

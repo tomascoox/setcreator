@@ -1,181 +1,29 @@
 'use client'
 
-import React from 'react'
-import { useRouter } from 'next/navigation'
+import { DataTable } from "@/components/DataTable"
+import { columns } from "./columns"
+import { Song } from "@prisma/client"
+import { Button } from "@/components/ui/button"
+import { PlusCircle } from "lucide-react"
+import Link from "next/link"
 
-import {
-    ColumnDef,
-    ColumnFiltersState,
-    SortingState,
-    flexRender,
-    getCoreRowModel,
-    getFilteredRowModel,
-    getPaginationRowModel,
-    getSortedRowModel,
-    useReactTable,
-} from '@tanstack/react-table'
-
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table'
-
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import Link from 'next/link'
-import { PlusCircle } from 'lucide-react'
-
-interface DataTableProps<TData, TValue> {
-    columns: ColumnDef<TData, TValue>[]
-    data: TData[]
+interface SongsDataTableProps {
+    data: (Song & { isCollaborative: boolean })[]
 }
 
-export function DataTable<TData, TValue>({
-    columns,
-    data,
-}: DataTableProps<TData, TValue>) {
-    const [sorting, setSorting] = React.useState<SortingState>([])
-    const [columnFilters, setColumnFilters] =
-        React.useState<ColumnFiltersState>([])
-
-    const table = useReactTable({
-        data,
-        columns,
-        getCoreRowModel: getCoreRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
-        onSortingChange: setSorting,
-        getSortedRowModel: getSortedRowModel(),
-        onColumnFiltersChange: setColumnFilters,
-        getFilteredRowModel: getFilteredRowModel(),
-        state: {
-            sorting,
-            columnFilters,
-        },
-    })
-    const router = useRouter()
+export function SongsDataTable({ data }: SongsDataTableProps) {
     return (
-        <div className="px-3">
-            <div className="flex items-center justify-between py-4">
-                <div>
-                    <Input
-                        placeholder="Filter songs by title..."
-                        value={
-                            (table
-                                .getColumn('title')
-                                ?.getFilterValue() as string) ?? ''
-                        }
-                        onChange={event =>
-                            table
-                                .getColumn('title')
-                                ?.setFilterValue(event.target.value)
-                        }
-                        className="max-w-sm"
-                    />
-                </div>
+        <div>
+            <div className="flex justify-between items-center mb-4">
+                <h1 className="text-2xl font-bold">Songs</h1>
                 <Link href="/songs/create">
-                    <Button
-                        className="flex items-center space-x-2"
-                        size="sm"
-                    >
+                    <Button className="flex items-center">
                         <PlusCircle className="w-4 h-4 mr-2" />
-                        New song
+                        Create new song
                     </Button>
                 </Link>
             </div>
-
-            <div className="rounded-md border">
-                <Table>
-                    <TableHeader>
-                        {table.getHeaderGroups().map(headerGroup => (
-                            <TableRow key={headerGroup.id}>
-                                {headerGroup.headers.map(header => {
-                                    return (
-                                        <TableHead key={header.id} className="text-left">
-                                            {header.isPlaceholder
-                                                ? null
-                                                : flexRender(
-                                                      header.column
-                                                          .columnDef
-                                                          .header,
-                                                      header.getContext()
-                                                  )}
-                                        </TableHead>
-                                    )
-                                })}
-                            </TableRow>
-                        ))}
-                    </TableHeader>
-                    <TableBody>
-                        {table.getRowModel().rows?.length ? (
-                            table.getRowModel().rows.map(row => (
-                                <TableRow
-                                    key={row.id}
-                                    data-state={
-                                        row.getIsSelected() &&
-                                        'selected'
-                                    }
-                                    onClick={() =>
-                                        router.push(
-                                            `/songs/${
-                                                (
-                                                    row.original as {
-                                                        id: string
-                                                    }
-                                                ).id
-                                            }`
-                                        )
-                                    }
-                                    className="cursor-pointer hover:bg-gray-200"
-                                >
-                                    {row
-                                        .getVisibleCells()
-                                        .map(cell => (
-                                            <TableCell key={cell.id} className="text-left">
-                                                {flexRender(
-                                                    cell.column
-                                                        .columnDef
-                                                        .cell,
-                                                    cell.getContext()
-                                                )}
-                                            </TableCell>
-                                        ))}
-                                </TableRow>
-                            ))
-                        ) : (
-                            <TableRow>
-                                <TableCell
-                                    colSpan={columns.length}
-                                    className="h-24 text-center"
-                                >
-                                    No results.
-                                </TableCell>
-                            </TableRow>
-                        )}
-                    </TableBody>
-                </Table>
-            </div>
-            <div className="flex items-center justify-end space-x-2 py-4">
-                <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => table.previousPage()}
-                    disabled={!table.getCanPreviousPage()}
-                >
-                    Previous
-                </Button>
-                <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => table.nextPage()}
-                    disabled={!table.getCanNextPage()}
-                >
-                    Next
-                </Button>
-            </div>
+            <DataTable columns={columns} data={data} editUrlPrefix="/songs" />
         </div>
     )
 }
