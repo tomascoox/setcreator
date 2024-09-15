@@ -26,11 +26,9 @@ export default function ClientLayout({
     }, [isSignedIn, userId]);
 
     return (
-        <html lang="en">
-            <body className={inter.className}>
-                <ToastProvider />
-                {children}
-            </body>
-        </html>
+        <div className={inter.className}>
+            <ToastProvider />
+            {children}
+        </div>
     )
 }

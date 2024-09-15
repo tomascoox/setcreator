@@ -87,9 +87,9 @@ export function DataTable<TData, TValue>({
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
+              <TableRow key={headerGroup.id} className="h-8 sm:h-10">
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
+                  <TableHead key={header.id} className="text-xs sm:text-sm py-1 text-left">
                     {header.isPlaceholder
                       ? null
                       : flexRender(
@@ -107,11 +107,11 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  className="cursor-pointer hover:bg-gray-100 h-16" // Add h-16 class here
+                  className="cursor-pointer hover:bg-gray-100 h-8 sm:h-10"
                   onClick={() => router.push(`${editUrlPrefix}/${(row.original as any).id}`)}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} className="text-xs sm:text-sm py-1 text-left">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}

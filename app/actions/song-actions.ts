@@ -15,6 +15,6 @@ export async function addCollaborator(songId: string, email: string) {
 
   await prisma.song.update({
     where: { id: songId },
-    data: { isCollaborative: true },
+    data: { isShared: true },
   })
 }

@@ -15,6 +15,6 @@ export async function addCollaborator(gigId: string, email: string) {
 
   await prisma.gig.update({
     where: { id: gigId },
-    data: { isCollaborative: true },
+    data: { isShared: true },
   })
 }

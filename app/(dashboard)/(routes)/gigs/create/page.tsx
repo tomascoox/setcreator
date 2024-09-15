@@ -9,6 +9,7 @@ import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import DatePicker from "react-datepicker"
 import "react-datepicker/dist/react-datepicker.css"
+import toast from 'react-hot-toast' // Add this import
 
 export default function CreateGig() {
     const [title, setTitle] = useState('')
@@ -20,7 +21,7 @@ export default function CreateGig() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         if (!date) {
-            // Handle error silently or use a proper error logging service
+            toast.error('Please select a date and time') // Add error toast for missing date
             return
         }
         setIsLoading(true)
@@ -30,9 +31,11 @@ export default function CreateGig() {
                 date: date.toISOString(), 
                 venue 
             })
+            toast.success('Gig created successfully') // Add success toast
             router.push('/gigs')
         } catch (error) {
-            // Handle error silently or use a proper error logging service
+            console.error('Error creating gig:', error)
+            toast.error('Failed to create gig') // Add error toast
         } finally {
             setIsLoading(false)
         }

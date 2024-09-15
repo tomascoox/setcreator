@@ -8,7 +8,7 @@ import { PlusCircle } from "lucide-react"
 import Link from "next/link"
 
 interface SongsDataTableProps {
-    data: (Song & { isCollaborative: boolean })[]
+    data: (Song & { isShared: boolean })[]
 }
 
 export function SongsDataTable({ data }: SongsDataTableProps) {

@@ -36,16 +36,6 @@ const BandIdPage = async ({
         return redirect('/bands')
     }
 
-    const requiredFields = [
-        band.name,
-        band.members.length > 0
-    ]
-
-    const totalFields = requiredFields.length
-    const completedFields = requiredFields.filter(Boolean).length
-
-    const completionText = `(${completedFields}/${totalFields})`
-
     return (
         <div className="p-6">
             <Link
@@ -56,33 +46,19 @@ const BandIdPage = async ({
                 Back to bands
             </Link>
 
-            <div className="flex items-center justify-between">
-                <div className="flex flex-col gap-y-2">
-                    <h1 className="text-2xl font-medium">
-                        Band setup
-                    </h1>
-                    <span className="text-sm text-slate-700">
-                        Complete all fields {completionText}
-                    </span>
-                </div>
-            </div>
+            <h1 className="text-2xl font-medium mb-6">
+                Band setup
+            </h1>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-16">
-                <div>
-                    <div className="flex items-center gap-x-2">
-                        <h2 className="text-xl">
-                            Customize your band
-                        </h2>
-                    </div>
-                    <BandForm
-                        initialData={band}
-                        bandId={band.id}
-                    />
-                    <MembersForm
-                        initialData={band}
-                        bandId={band.id}
-                    />
-                </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <BandForm
+                    initialData={band}
+                    bandId={band.id}
+                />
+                <MembersForm
+                    initialData={band}
+                    bandId={band.id}
+                />
             </div>
         </div>
     )

@@ -1,6 +1,6 @@
-import { db } from '@/lib/db'
-import { auth } from '@clerk/nextjs'
 import { NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+import { auth } from '@clerk/nextjs'
 
 export async function PATCH(
     req: Request,
@@ -8,26 +8,37 @@ export async function PATCH(
 ) {
     try {
         const { userId } = auth()
-        const { songId } = params
-        const values = await req.json()
+        const { title, artist, duration, lyrics } = await req.json()
 
         if (!userId) {
-            return new NextResponse('Unauthorized', { status: 401 })
+            return new NextResponse("Unauthorized", { status: 401 })
         }
 
-        const song = await db.song.update({
+        const song = await prisma.song.findUnique({
             where: {
-                id: songId,
-                userId,
-            },
-            data: {
-                ...values,
+                id: params.songId,
             },
         })
 
-        return NextResponse.json(song)
+        if (!song) {
+            return new NextResponse("Song not found", { status: 404 })
+        }
+
+        const updatedSong = await prisma.song.update({
+            where: {
+                id: params.songId,
+            },
+            data: {
+                title,
+                artist,
+                duration: duration !== null ? parseInt(duration, 10) : null,
+                lyrics,
+            },
+        })
+
+        return NextResponse.json(updatedSong)
     } catch (error) {
-        console.log('[SONG_ID]', error)
-        return new NextResponse('Internal Error', { status: 500 })
+        console.error('[SONG_PATCH]', error)
+        return new NextResponse("Internal Error", { status: 500 })
     }
 }

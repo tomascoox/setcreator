@@ -8,7 +8,7 @@ import { PlusCircle } from "lucide-react"
 import Link from "next/link"
 
 interface GigsDataTableProps {
-    data: (Gig & { isCollaborative: boolean })[]
+    data: (Gig & { isShared: boolean })[]
 }
 
 export function GigsDataTable({ data }: GigsDataTableProps) {

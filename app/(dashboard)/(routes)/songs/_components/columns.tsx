@@ -2,44 +2,36 @@
 
 import { Song } from '@prisma/client'
 import { ColumnDef } from '@tanstack/react-table'
-import { ArrowUpDown, MoreHorizontal, Pencil } from 'lucide-react'
-
+import { ArrowUpDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import Link from 'next/link'
 import { Checkbox } from "@/components/ui/checkbox"
 
 function formatDuration(seconds: number) {
     const minutes = Math.floor(seconds / 60)
     const remainingSeconds = seconds % 60
-    return `${minutes}:${remainingSeconds
-        .toString()
-        .padStart(2, '0')}`
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`
 }
 
-export const columns: ColumnDef<Song & { isCollaborative: boolean }>[] = [
+export const columns: ColumnDef<Song & { isShared: boolean }>[] = [
     {
         accessorKey: 'title',
         header: ({ column }) => {
             return (
                 <Button
                     variant="ghost"
-                    onClick={() =>
-                        column.toggleSorting(
-                            column.getIsSorted() === 'asc'
-                        )
-                    }
+                    onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+                    className="p-0 h-8 font-bold text-left"
                 >
                     Title
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                    <ArrowUpDown className="ml-2 h-3 w-3" />
                 </Button>
             )
         },
+        cell: ({ row }) => (
+            <div className="text-left">
+                {row.original.title}
+            </div>
+        ),
     },
     {
         accessorKey: 'artist',
@@ -52,30 +44,18 @@ export const columns: ColumnDef<Song & { isCollaborative: boolean }>[] = [
                             column.getIsSorted() === 'asc'
                         )
                     }
+                    className="p-0 h-8 font-bold text-left"
                 >
                     Artist
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                    <ArrowUpDown className="ml-2 h-3 w-3" />
                 </Button>
             )
         },
-    },
-    {
-        accessorKey: 'notes',
-        header: ({ column }) => {
-            return (
-                <Button
-                    variant="ghost"
-                    onClick={() =>
-                        column.toggleSorting(
-                            column.getIsSorted() === 'asc'
-                        )
-                    }
-                >
-                    Notes
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
-            )
-        },
+        cell: ({ row }) => (
+            <div className="text-left">
+                {row.original.artist}
+            </div>
+        ),
     },
     {
         accessorKey: 'duration',
@@ -88,9 +68,10 @@ export const columns: ColumnDef<Song & { isCollaborative: boolean }>[] = [
                             column.getIsSorted() === 'asc'
                         )
                     }
+                    className="p-0 h-8 font-bold text-left"
                 >
                     Duration
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                    <ArrowUpDown className="ml-2 h-3 w-3" />
                 </Button>
             )
         },
@@ -100,61 +81,14 @@ export const columns: ColumnDef<Song & { isCollaborative: boolean }>[] = [
                 : 'N/A',
     },
     {
-        accessorKey: 'lyrics',
-        header: ({ column }) => {
-            return (
-                <Button
-                    variant="ghost"
-                    onClick={() =>
-                        column.toggleSorting(
-                            column.getIsSorted() === 'asc'
-                        )
-                    }
-                >
-                    Lyrics
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
-            )
-        },
-    },
-    {
-        id: 'actions',
-        cell: ({ row }) => {
-            const { id } = row.original
-            return (
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <div>
-                            <Button
-                                variant="ghost"
-                                className="h-4 w-8 p-0"
-                            >
-                                <span className="sr-only">Open menu</span>
-                                <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                        </div>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                        <Link href={`/songs/${id}`}>
-                            <DropdownMenuItem>
-                                <Pencil className="h-4 w-4 mr-2" />
-                                Edit
-                            </DropdownMenuItem>
-                        </Link>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            )
-        },
-    },
-    {
-        accessorKey: "isCollaborative",
-        header: "Collaborative",
+        accessorKey: "isShared",
+        header: "Shared",
         cell: ({ row }) => (
             <Checkbox
-                checked={row.original.isCollaborative}
+                checked={row.original.isShared}
                 onCheckedChange={(checked: boolean) => {
-                    // TODO: Implement API call to update collaboration status
-                    console.log("Update collaboration status for song:", row.original.id, checked)
+                    // TODO: Implement API call to update shared status
+                    console.log("Update shared status for song:", row.original.id, checked)
                 }}
             />
         ),

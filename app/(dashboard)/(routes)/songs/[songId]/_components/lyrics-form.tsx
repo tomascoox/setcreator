@@ -19,10 +19,15 @@ import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { cn } from '@/lib/utils'
 import { Textarea } from '@/components/ui/textarea'
-import { Song } from '@prisma/client'
+import { Song as PrismaSong } from '@prisma/client'
+
+// Ensure Song type includes lyrics
+interface SongWithLyrics extends PrismaSong {
+    lyrics: string; // Add this line
+}
 
 interface LyricsFormProps {
-    initialData: Song
+    initialData: SongWithLyrics
     songId: string
 }
 
@@ -83,7 +88,7 @@ export const LyricsForm = ({
                 <p
                     className={cn(
                         'text-sm mt-2 whitespace-pre-line',
-                        !initialData.notes &&
+                        !initialData.lyrics &&
                             'text-slate-500 italic'
                     )}
                 >

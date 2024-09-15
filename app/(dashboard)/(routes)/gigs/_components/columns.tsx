@@ -2,20 +2,12 @@
 
 import { Gig } from '@prisma/client'
 import { ColumnDef } from '@tanstack/react-table'
-import { ArrowUpDown, MoreHorizontal, Pencil } from 'lucide-react'
+import { ArrowUpDown } from 'lucide-react'
 import { format } from 'date-fns'
 import { Checkbox } from "@/components/ui/checkbox"
-
 import { Button } from '@/components/ui/button'
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import Link from 'next/link'
 
-export const columns: ColumnDef<Gig & { isCollaborative: boolean }>[] = [
+export const columns: ColumnDef<Gig & { isShared: boolean }>[] = [
     {
         accessorKey: 'title',
         header: ({ column }) => {
@@ -27,12 +19,18 @@ export const columns: ColumnDef<Gig & { isCollaborative: boolean }>[] = [
                             column.getIsSorted() === 'asc'
                         )
                     }
+                    className="p-0 h-8 font-bold text-left"
                 >
                     Title
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                    <ArrowUpDown className="ml-2 h-3 w-3" />
                 </Button>
             )
         },
+        cell: ({ row }) => (
+            <div className="text-left">
+                {row.original.title}
+            </div>
+        ),
     },
     {
         accessorKey: 'date',
@@ -45,9 +43,10 @@ export const columns: ColumnDef<Gig & { isCollaborative: boolean }>[] = [
                             column.getIsSorted() === 'asc'
                         )
                     }
+                    className="p-0 h-8 font-bold text-left"
                 >
                     Date
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                    <ArrowUpDown className="ml-2 h-3 w-3" />
                 </Button>
             )
         },
@@ -57,7 +56,7 @@ export const columns: ColumnDef<Gig & { isCollaborative: boolean }>[] = [
         },
     },
     {
-        accessorKey: 'venue', // Change this from 'location' to 'venue'
+        accessorKey: 'venue',
         header: ({ column }) => {
             return (
                 <Button
@@ -67,24 +66,30 @@ export const columns: ColumnDef<Gig & { isCollaborative: boolean }>[] = [
                             column.getIsSorted() === 'asc'
                         )
                     }
+                    className="p-0 h-8 font-bold text-left"
                 >
                     Venue
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                    <ArrowUpDown className="ml-2 h-3 w-3" />
                 </Button>
             )
         },
+        cell: ({ row }) => (
+            <div className="text-left">
+                {row.original.venue}
+            </div>
+        ),
     },
     {
-        accessorKey: 'isCollaborative',
-        header: "Collaborative",
+        accessorKey: 'isShared',
+        header: "Shared",
         cell: ({ row }) => (
             <Checkbox
-                checked={row.original.isCollaborative}
+                checked={row.original.isShared}
                 onCheckedChange={(checked: boolean) => {
-                    // TODO: Implement API call to update collaboration status
-                    console.log("Update collaboration status for gig:", row.original.id, checked)
+                    // TODO: Implement API call to update shared status
+                    console.log("Update shared status for gig:", row.original.id, checked)
                 }}
             />
         ),
-    }
+    },
 ]

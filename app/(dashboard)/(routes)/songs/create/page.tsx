@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
+import toast from 'react-hot-toast' // Add this import
 
 export default function CreateSong() {
     const [title, setTitle] = useState('')
@@ -19,9 +20,11 @@ export default function CreateSong() {
         setIsLoading(true)
         try {
             await axios.post('/api/songs', { title, artist })
+            toast.success('Song created successfully') // Add this line
             router.push('/songs')
         } catch (error) {
-            // Handle error silently or use a proper error logging service
+            console.error('Error creating song:', error)
+            toast.error('Failed to create song') // Add this line
         } finally {
             setIsLoading(false)
         }
